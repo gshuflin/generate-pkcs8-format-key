@@ -6,11 +6,15 @@ fn main() {
 
     let password = b"test";
 
+    /*
     let signing_key = ed25519_zebra::SigningKey::new(thread_rng());
     let verification_key = ed25519_zebra::VerificationKey::from(&signing_key);
+    */
+    let signing_key = ed25519_dalek::SigningKey::generate(&mut thread_rng());
+    let verification_key = signing_key.verifying_key();
 
-    let sk_bytes: &[u8] = signing_key.as_ref();
-    let vk_bytes: &[u8] = verification_key.as_ref();
+    let sk_bytes: &[u8; 32] = signing_key.as_bytes();
+    let vk_bytes: &[u8; 32] = verification_key.as_bytes();
     assert_eq!(sk_bytes.len(), 32);
 
     const ED25519_OID: ObjectIdentifier = ObjectIdentifier::new_unwrap("1.3.101.112");
