@@ -100,6 +100,7 @@ name = "crypt-test"
 version = "0.1.0"
 dependencies = [
  "ed25519",
+ "ed25519-dalek",
  "ed25519-zebra",
  "pkcs8",
  "rand",
@@ -173,6 +174,20 @@ dependencies = [
  "pkcs8",
  "serde",
  "signature",
+]
+
+[[package]]
+name = "ed25519-dalek"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a3daa8e81a3963a60642bcc1f90a670680bd4a77535faa384e9d1c79d620871"
+dependencies = [
+ "curve25519-dalek",
+ "ed25519",
+ "serde",
+ "sha2",
+ "subtle",
+ "zeroize",
 ]
 
 [[package]]
