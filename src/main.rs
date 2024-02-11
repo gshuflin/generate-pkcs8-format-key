@@ -10,7 +10,6 @@ fn main() {
     let verification_key = ed25519_zebra::VerificationKey::from(&signing_key);
 
     let sk_bytes: &[u8] = signing_key.as_ref();
-    let verification_key = ed25519_zebra::VerificationKey::from(&signing_key);
     let vk_bytes: &[u8] = verification_key.as_ref();
     assert_eq!(sk_bytes.len(), 32);
 
