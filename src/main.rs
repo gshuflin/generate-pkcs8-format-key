@@ -2,6 +2,9 @@ use pkcs8::{ObjectIdentifier, PrivateKeyInfo, AlgorithmIdentifierRef, pkcs5::pbe
 use rand::{Rng, thread_rng};
 
 fn main() {
+    const ED25519_ASN1_HEADER: [u8; 2] = [0x04, 0x20];
+    const ED25519_KEY_LENGTH: usize = 32;
+
     println!("Generating pcks8 key");
 
     let password = b"test";
