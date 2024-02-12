@@ -9,5 +9,5 @@ edition = "2021"
 ed25519 = {version = "2.2.3", features = ["pkcs8"] }
 ed25519-dalek = {version = "2.1.1", features = ["rand_core"] }
 ed25519-zebra = "4.0.3"
-pkcs8 = { version = "0.10.2", features = ["pkcs5", "encryption", "alloc", "std"] }
+pkcs8 = { version = "0.10.2", features = ["pkcs5", "encryption", "alloc", "std", "pem"] }
 rand = "0.8.5"

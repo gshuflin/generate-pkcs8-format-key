@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use ed25519::{pkcs8::{ObjectIdentifier, PrivateKeyInfo}}; 
-use pkcs8::{AlgorithmIdentifierRef, pkcs5::pbes2::Parameters};
+use pkcs8::{AlgorithmIdentifierRef, pkcs5::pbes2::Parameters, LineEnding};
 use rand::{Rng, thread_rng};
 
 enum Library {
@@ -10,8 +10,8 @@ enum Library {
 }
 
 fn main() {
-    generate_key(b"test", "output-dalek.der", Library::Dalek);
-    generate_key(b"test", "output-zebra.der", Library::Zebra);
+    generate_key(b"test", "output-dalek.pem", Library::Dalek);
+    generate_key(b"test", "output-zebra.pem", Library::Zebra);
 }
 
 fn generate_key(password: &[u8], output_filename: impl AsRef<Path>, library: Library) {
@@ -62,7 +62,8 @@ fn generate_key(password: &[u8], output_filename: impl AsRef<Path>, library: Lib
 
     let secret_document = private_key_info.encrypt_with_params(pbes2_params, password).unwrap();
 
-    secret_document.write_der_file(&output_filename).unwrap();
+    //secret_document.write_der_file(&output_filename).unwrap();
+    secret_document.write_pem_file(&output_filename, "PRIVATE KEY", LineEnding::LF).unwrap();
     let p: &Path = output_filename.as_ref();
     println!("Finished writing {}", p.display());
 }
