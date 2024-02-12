@@ -1,13 +1,17 @@
+use std::path::Path;
+
 use pkcs8::{ObjectIdentifier, PrivateKeyInfo, AlgorithmIdentifierRef, pkcs5::pbes2::Parameters};
 use rand::{Rng, thread_rng};
 
 fn main() {
+    generate_key(b"test", "output.der");
+}
+
+fn generate_key(password: &[u8], output_filename: impl AsRef<Path>) {
     const ED25519_ASN1_HEADER: [u8; 2] = [0x04, 0x20];
     const ED25519_KEY_LENGTH: usize = 32;
 
     println!("Generating pcks8 key");
-
-    let password = b"test";
 
     /*
     let signing_key = ed25519_zebra::SigningKey::new(thread_rng());
@@ -42,7 +46,7 @@ fn main() {
 
     let secret_document = private_key_info.encrypt_with_params(pbes2_params, password).unwrap();
 
-    secret_document.write_der_file("output.der").unwrap();
+    secret_document.write_der_file(output_filename).unwrap();
     println!("Finished writing output.der");
 
 }
