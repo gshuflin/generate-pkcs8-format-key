@@ -9,12 +9,19 @@ enum Library {
     Zebra,
 }
 
-fn main() {
-    generate_key(b"test", "output-dalek.pem", Library::Dalek);
-    generate_key(b"test", "output-zebra.pem", Library::Zebra);
+enum Format {
+    PEM,
+    DER
 }
 
-fn generate_key(password: &[u8], output_filename: impl AsRef<Path>, library: Library) {
+fn main() {
+    generate_key(b"test", "output-dalek.pem", Library::Dalek, Format::PEM);
+    generate_key(b"test", "output-zebra.pem", Library::Zebra, Format::PEM);
+    generate_key(b"test", "output-dalek.der", Library::Dalek, Format::DER);
+    generate_key(b"test", "output-zebra.der", Library::Zebra, Format::DER);
+}
+
+fn generate_key(password: &[u8], output_filename: impl AsRef<Path>, library: Library, format: Format) {
     const ED25519_ASN1_HEADER: [u8; 2] = [0x04, 0x20];
     const ED25519_KEY_LENGTH: usize = 32;
 
@@ -62,8 +69,14 @@ fn generate_key(password: &[u8], output_filename: impl AsRef<Path>, library: Lib
 
     let secret_document = private_key_info.encrypt_with_params(pbes2_params, password).unwrap();
 
-    //secret_document.write_der_file(&output_filename).unwrap();
-    secret_document.write_pem_file(&output_filename, "PRIVATE KEY", LineEnding::LF).unwrap();
+    match format {
+        Format::DER => {
+            secret_document.write_der_file(&output_filename).unwrap();
+        },
+        Format::PEM => {
+            secret_document.write_pem_file(&output_filename, "PRIVATE KEY", LineEnding::LF).unwrap();
+        }
+    }
     let p: &Path = output_filename.as_ref();
     println!("Finished writing {}", p.display());
 }
