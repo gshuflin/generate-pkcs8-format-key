@@ -1,5 +1,6 @@
-Run `cargo run` to execute the program. It should generate two keypair files, both
+Run `cargo run` to execute the program. It should generate four keypair files, all
 encrypted using the password "test".
 
-Run `openssl -- pkey -in $FILENAME.der -inform der` on either of the keypair files
-to demonstrate `openssl` being unable to read the key from these files.
+Run `just attempt-openssl-decrypt {{filename}}` to run the openssl command that should
+prompt for the password and print out a representation of the key. Instead of succeeding,
+openssl unexpectedly throws an error with all four files.
