@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ed25519 = "2.2.3"
+ed25519 = {version = "2.2.3", features = ["pkcs8"] }
 ed25519-dalek = {version = "2.1.1", features = ["rand_core"] }
 ed25519-zebra = "4.0.3"
 pkcs8 = { version = "0.10.2", features = ["pkcs5", "encryption", "alloc", "std"] }
