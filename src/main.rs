@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use ed25519::{pkcs8::{ObjectIdentifier, PrivateKeyInfo}}; 
+use ed25519::{pkcs8::{ObjectIdentifier, PrivateKeyInfo}, KeypairBytes}; 
 use pkcs8::{AlgorithmIdentifierRef, pkcs5::pbes2::Parameters, LineEnding};
 use ed25519_dalek::pkcs8::EncodePrivateKey;
 use rand::{Rng, thread_rng};
@@ -30,9 +30,17 @@ fn generate_key_dalek(password: &[u8], path: impl AsRef<Path>, format: Format) {
     let signing_key = ed25519_dalek::SigningKey::generate(&mut thread_rng());
     let _verification_key = signing_key.verifying_key();
 
+    let sk_bytes: &[u8] = signing_key.as_bytes();
+    let secret_key: [u8; 32] = sk_bytes.try_into().unwrap();
+
+    let keypair_bytes: KeypairBytes = KeypairBytes {
+        secret_key,
+        public_key: None
+    };
+
     match format {
-        Format::DER => signing_key.write_pkcs8_der_file(path).unwrap(),
-        Format::PEM => signing_key.write_pkcs8_pem_file(path, LineEnding::LF).unwrap(),
+        Format::DER => keypair_bytes.write_pkcs8_der_file(path).unwrap(),
+        Format::PEM => keypair_bytes.write_pkcs8_pem_file(path, LineEnding::LF).unwrap(),
     }
 }
 
