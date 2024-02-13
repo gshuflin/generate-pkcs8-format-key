@@ -1,8 +1,8 @@
-use std::path::Path;
+use std::{path::Path, io::Write};
 
 use ed25519::{pkcs8::{ObjectIdentifier, PrivateKeyInfo}, KeypairBytes}; 
-use pkcs8::{AlgorithmIdentifierRef, pkcs5::pbes2::Parameters, LineEnding};
-use ed25519_dalek::pkcs8::EncodePrivateKey;
+use pkcs8::{AlgorithmIdentifierRef, pkcs5::pbes2::Parameters, LineEnding, SecretDocument, EncodePrivateKey};
+//use ed25519_dalek::pkcs8::EncodePrivateKey;
 use rand::{Rng, thread_rng};
 
 enum Library {
@@ -18,12 +18,44 @@ enum Format {
 fn main() {
     generate_key_zebra(b"test", "new-dalek.der", Format::DER);
     generate_key_zebra(b"test", "new-dalek.pem", Format::PEM);
+
+    generate_encrypted_key(b"test", "new-encrypted.pem", Format::PEM);
+    generate_encrypted_key(b"test", "new-encrypted.der", Format::DER);
     /*
     generate_key(b"test", "output-dalek.pem", Library::Dalek, Format::PEM);
     generate_key(b"test", "output-zebra.pem", Library::Zebra, Format::PEM);
     generate_key(b"test", "output-dalek.der", Library::Dalek, Format::DER);
     generate_key(b"test", "output-zebra.der", Library::Zebra, Format::DER);
     */
+}
+
+fn generate_encrypted_key(password: &[u8], path: impl AsRef<Path>, format: Format) {
+    const ED25519_OID: ObjectIdentifier = ObjectIdentifier::new_unwrap("1.3.101.112");
+
+    let path: &Path = path.as_ref();
+    let signing_key = ed25519_zebra::SigningKey::new(thread_rng());
+
+    let sk_bytes: &[u8] = signing_key.as_ref();
+    let secret_key: [u8; 32] = sk_bytes.try_into().unwrap();
+
+    println!("generate_encrypted_key secret key bytes: {:x?} ({})", secret_key, path.display());
+
+    let keypair_bytes: KeypairBytes = KeypairBytes {
+        secret_key,
+        public_key: None
+    };
+
+    match format {
+        Format::DER => {
+            let secret_document = keypair_bytes.to_pkcs8_encrypted_der(thread_rng(), password).unwrap();
+            secret_document.write_der_file(path).unwrap();
+        }
+        Format::PEM => {
+            let string = keypair_bytes.to_pkcs8_encrypted_pem(thread_rng(), password, LineEnding::LF).unwrap();
+            let mut buf = std::fs::File::create(path).unwrap();
+            buf.write_all(string.as_ref()).unwrap();
+        }
+    }
 }
 
 fn generate_key_zebra(password: &[u8], path: impl AsRef<Path>, format: Format) {
