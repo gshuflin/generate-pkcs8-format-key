@@ -16,8 +16,8 @@ enum Format {
 }
 
 fn main() {
-    generate_key_dalek(b"test", "new-dalek.der", Format::DER);
-    generate_key_dalek(b"test", "new-dalek.pem", Format::PEM);
+    generate_key_zebra(b"test", "new-dalek.der", Format::DER);
+    generate_key_zebra(b"test", "new-dalek.pem", Format::PEM);
     /*
     generate_key(b"test", "output-dalek.pem", Library::Dalek, Format::PEM);
     generate_key(b"test", "output-zebra.pem", Library::Zebra, Format::PEM);
@@ -26,12 +26,12 @@ fn main() {
     */
 }
 
-fn generate_key_dalek(password: &[u8], path: impl AsRef<Path>, format: Format) {
+fn generate_key_zebra(password: &[u8], path: impl AsRef<Path>, format: Format) {
     let path: &Path = path.as_ref();
-    let signing_key = ed25519_dalek::SigningKey::generate(&mut thread_rng());
-    let _verification_key = signing_key.verifying_key();
+    let signing_key = ed25519_zebra::SigningKey::new(thread_rng());
+    //let _verification_key = signing_key.verification_key();
 
-    let sk_bytes: &[u8] = signing_key.as_bytes();
+    let sk_bytes: &[u8] = signing_key.as_ref();
     let secret_key: [u8; 32] = sk_bytes.try_into().unwrap();
 
     println!("Secret key bytes: {:x?} ({})", secret_key, path.display());
