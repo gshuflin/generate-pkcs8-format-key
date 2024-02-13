@@ -27,11 +27,14 @@ fn main() {
 }
 
 fn generate_key_dalek(password: &[u8], path: impl AsRef<Path>, format: Format) {
+    let path: &Path = path.as_ref();
     let signing_key = ed25519_dalek::SigningKey::generate(&mut thread_rng());
     let _verification_key = signing_key.verifying_key();
 
     let sk_bytes: &[u8] = signing_key.as_bytes();
     let secret_key: [u8; 32] = sk_bytes.try_into().unwrap();
+
+    println!("Secret key bytes: {:x?} ({})", secret_key, path.display());
 
     let keypair_bytes: KeypairBytes = KeypairBytes {
         secret_key,
