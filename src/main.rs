@@ -40,20 +40,24 @@ fn generate_encrypted_key(password: &[u8], path: impl AsRef<Path>, format: Forma
 
     println!("generate_encrypted_key secret key bytes: {:x?} ({})", secret_key, path.display());
 
-    let keypair_bytes: KeypairBytes = KeypairBytes {
-        secret_key,
-        public_key: None
+    let algorithm = AlgorithmIdentifierRef {
+        oid: ED25519_OID,
+        parameters: None,
     };
+
+    let private_key_info = PrivateKeyInfo {
+        algorithm,
+        private_key: secret_key.as_ref(),
+        public_key: None,
+    };
+    let secret_document = private_key_info.encrypt(thread_rng(), password).unwrap();
 
     match format {
         Format::DER => {
-            let secret_document = keypair_bytes.to_pkcs8_encrypted_der(thread_rng(), password).unwrap();
             secret_document.write_der_file(path).unwrap();
         }
         Format::PEM => {
-            let string = keypair_bytes.to_pkcs8_encrypted_pem(thread_rng(), password, LineEnding::LF).unwrap();
-            let mut buf = std::fs::File::create(path).unwrap();
-            buf.write_all(string.as_ref()).unwrap();
+            secret_document.write_pem_file(path, "YOLO", LineEnding::LF).unwrap();
         }
     }
 }
