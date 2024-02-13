@@ -2,6 +2,7 @@ use std::path::Path;
 
 use ed25519::{pkcs8::{ObjectIdentifier, PrivateKeyInfo}}; 
 use pkcs8::{AlgorithmIdentifierRef, pkcs5::pbes2::Parameters, LineEnding};
+use ed25519_dalek::pkcs8::EncodePrivateKey;
 use rand::{Rng, thread_rng};
 
 enum Library {
@@ -15,10 +16,24 @@ enum Format {
 }
 
 fn main() {
+    generate_key_dalek(b"test", "new-dalek.der", Format::DER);
+    generate_key_dalek(b"test", "new-dalek.pem", Format::PEM);
+    /*
     generate_key(b"test", "output-dalek.pem", Library::Dalek, Format::PEM);
     generate_key(b"test", "output-zebra.pem", Library::Zebra, Format::PEM);
     generate_key(b"test", "output-dalek.der", Library::Dalek, Format::DER);
     generate_key(b"test", "output-zebra.der", Library::Zebra, Format::DER);
+    */
+}
+
+fn generate_key_dalek(password: &[u8], path: impl AsRef<Path>, format: Format) {
+    let signing_key = ed25519_dalek::SigningKey::generate(&mut thread_rng());
+    let _verification_key = signing_key.verifying_key();
+
+    match format {
+        Format::DER => signing_key.write_pkcs8_der_file(path).unwrap(),
+        Format::PEM => signing_key.write_pkcs8_pem_file(path, LineEnding::LF).unwrap(),
+    }
 }
 
 fn generate_key(password: &[u8], output_filename: impl AsRef<Path>, library: Library, format: Format) {
